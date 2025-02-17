@@ -218,6 +218,7 @@ val.% var.%: FORCE
 
 WARN_PARALLEL_ERROR = $(if $(BUILD_LOG),,$(and $(filter -j,$(MAKEFLAGS)),$(findstring s,$(OPENWRT_VERBOSE))))
 
+$(warning m_var: SDK=$(SDK))
 ifeq ($(SDK),1)
 
 %::
