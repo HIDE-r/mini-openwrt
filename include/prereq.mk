@@ -5,6 +5,7 @@
 ifneq ($(__prereq_inc),1)
 __prereq_inc:=1
 
+# 定义 prereq 的规则命令, 存在错误日志时进行打印并删除文件
 prereq:
 	if [ -f $(TMP_DIR)/.prereq-error ]; then \
 		echo; \
@@ -19,8 +20,19 @@ endif
 
 PREREQ_PREV=
 
-# 1: display name
-# 2: error message
+# 生成定义一些用于检查的目标, 并将其作为依赖添加到 prereq 目标中
+# 其中 prereq-$(1) 用于调用check-$(1)检查并打印结果, 并且它会依赖于上一个 prereq-$(1) 目标
+# check-$(1) 会调用 Require/$(1), Require/$(1) 这个目标通常由下面不同的场景进行实现
+# 1: display name		定义的目标名
+# 2: error message		失败时打印的log
+#
+# example:
+# Checking 'working-make'... ok.
+# Checking 'case-sensitive-fs'... ok.
+# Checking 'proper-umask'... ok.
+# Checking 'gcc'... ok.
+# Checking 'working-gcc'... ok.
+# Checking 'g++'... ok.
 define Require
   export PREREQ_CHECK=1
   ifeq ($$(CHECK_$(1)),)
@@ -65,10 +77,11 @@ define RequireHeader
   $$(eval $$(call Require,$(1),$(2)))
 endef
 
-# 1: header to test
-# 2: failure message
-# 3: optional compile time test
-# 4: optional link library test (example -lncurses)
+# 通过写一个简单的 c code 调用头文件中的函数来判断系统中是否有指定的头文件, 以及库文件
+# 1: header to test					需要测试的头文件
+# 2: failure message					失败时打印的log
+# 3: optional compile time test				头文件中的测试函数
+# 4: optional link library test (example -lncurses)	测试函数需要链接的库
 define RequireCHeader
   define Require/$(1)
     echo 'int main(int argc, char **argv) { $(3); return 0; }' | gcc -include $(1) -x c -o $(TMP_DIR)/a.out - $(4)
@@ -81,9 +94,16 @@ define QuoteHostCommand
 '$(subst ','"'"',$(strip $(1)))'
 endef
 
-# 1: display name
-# 2: failure message
-# 3: test
+# 用于判断 host 的工具是否符合条件
+#
+# 1: display name 		定义的目标名
+# 2: failure message 		失败时打印的log
+# 3: test 			用于判断程序满足条件的命令
+# example:
+#
+# $(eval $(call TestHostCommand,working-make, \
+# 	Please install GNU make v4.1 or later., \
+# 	$(MAKE) -v | grep -E 'Make (4\.[1-9]|[5-9]\.)'))
 define TestHostCommand
   define Require/$(1)
 	($(3)) >/dev/null 2>/dev/null
@@ -92,9 +112,13 @@ define TestHostCommand
   $$(eval $$(call Require,$(1),$(2)))
 endef
 
-# 1: canonical name
-# 2: failure message
-# 3+: candidates
+# 安装 host 程序到 staging 目录下
+#
+# 查找 $(1) 工具是否存在并依次执行检查命令, 如果通过, 则将 $(1) 指定的程序链接到 $(STAGING_DIR_HOST)/bin/ 目录下
+# 多个条件有一个符合即可
+# 1: canonical name		定义的目标名
+# 2: failure message		失败时打印的log
+# 3+: candidates		检查命令
 define SetupHostCommand
   define Require/$(1)
 	mkdir -p "$(STAGING_DIR_HOST)/bin"; \
