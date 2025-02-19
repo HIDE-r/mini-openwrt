@@ -119,7 +119,7 @@ endef
 
 从 Makefile 分析, 比如 tar, 构建 `prereq` 时会根据依赖调用到 `prereq-tar`, 从而打印 `checking 'tar' ...`, 这里可以看到如果第一次检查失败会再检查一遍
 
-```shell
+```makefile
 prereq-$(1): $(if $(PREREQ_PREV),prereq-$(PREREQ_PREV)) FORCE
     printf "Checking '$(1)'... "
     if $(NO_TRACE_MAKE) -f $(firstword $(MAKEFILE_LIST)) check-$(1) PATH="$(ORIG_PATH)" >/dev/null 2>/dev/null; then \
@@ -134,20 +134,21 @@ prereq-$(1): $(if $(PREREQ_PREV),prereq-$(PREREQ_PREV)) FORCE
 
 进入第一次检查, 会看到 SetupHostCommand 建立软链接时会以 exit 1 退出
 
-```
+```makefile
 ln -sf "$$$$$$$$bin" "$(STAGING_DIR_HOST)/bin/$(strip $(1))"; \
 exit 1; \
 ```
 
 进入第二次检查, 这时成功以 exit 0 退出, 故打印 updated.
-```
-				case "$$$$$$$$(ls -dl -- $(STAGING_DIR_HOST)/bin/$(strip $(1)))" in \
-					"-"* | \
-					*" -> $$$$$$$$bin"* | \
-					*" -> "[!/]*) \
-						[ -x "$(STAGING_DIR_HOST)/bin/$(strip $(1))" ] && exit 0 \
-						;; \
-				esac; \
+
+```makefile
+case "$$$$$$$$(ls -dl -- $(STAGING_DIR_HOST)/bin/$(strip $(1)))" in \
+    "-"* | \
+    *" -> $$$$$$$$bin"* | \
+    *" -> "[!/]*) \
+        [ -x "$(STAGING_DIR_HOST)/bin/$(strip $(1))" ] && exit 0 \
+        ;; \
+esac; \
 
 ```
 
