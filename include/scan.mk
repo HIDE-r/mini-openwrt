@@ -111,6 +111,18 @@ $(TARGET_STAMP)::
 		} \
 	)
 
+#
+# 将 tmp/info/.$(SCAN_TARGET)-* 每一个 package 信息 merge 到 tmp/.$(SCAN_TARGET) 中, 如 tmp/.packageinfo
+# 
+# 这些 package 信息文件是怎么生成的呢?
+# 对这个 makefile 执行时, 会先执行 $(TMP_DIR)/info/.files-$(SCAN_TARGET).mk 的 makefile 目标, 这个 makefile 会调用 PackageDir 宏最终生成这些 package 信息文件
+#
+# example:
+# .rw-r--r--@ 1.6k collin 18 Aug  2021 tmp/info/.packageinfo-system_uci
+# .rw-r--r--@  424 collin 18 Aug  2021 tmp/info/.packageinfo-system_urandom-seed
+# .rw-r--r--@ 1.1k collin 18 Aug  2021 tmp/info/.packageinfo-system_urngd
+# .rw-r--r--@  568 collin 18 Aug  2021 tmp/info/.packageinfo-system_usign
+# .rw-r--r--@  610 collin 18 Aug  2021 tmp/info/.packageinfo-system_zram-swap
 $(TMP_DIR)/.$(SCAN_TARGET): $(TARGET_STAMP)
 	$(call progress,Collecting $(SCAN_NAME) info: merging...)
 	-cat $(FILELIST) | awk '{gsub(/\//, "_", $$0);print "$(TMP_DIR)/info/.$(SCAN_TARGET)-" $$0}' | xargs cat > $@ 2>/dev/null
