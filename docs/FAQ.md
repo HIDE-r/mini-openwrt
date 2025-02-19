@@ -55,7 +55,6 @@ Collecting package info: done
 
 这是因为这个过程除了检查依赖, 还会调用 `include/prereq.mk` 中的 `SetupHostCommand` 对当前主机的部分可执行程序软链接到staging目录下, 作为主机工具使用. 使用 `SetupHostCommand` 建立的主机工具成功时会打印 updated.
 
-从 Makefile 分析, 比如 tar, 构建 `prereq` 时会根据依赖调用到 `prereq-tar`, 从而打印 checking 'tar' ...
 
 ```makefile
 # include/prereq.mk
@@ -118,18 +117,38 @@ define SetupHostCommand
 endef
 ```
 
+从 Makefile 分析, 比如 tar, 构建 `prereq` 时会根据依赖调用到 `prereq-tar`, 从而打印 `checking 'tar' ...`, 这里可以看到如果第一次检查失败会再检查一遍
+
+```shell
+prereq-$(1): $(if $(PREREQ_PREV),prereq-$(PREREQ_PREV)) FORCE
+    printf "Checking '$(1)'... "
+    if $(NO_TRACE_MAKE) -f $(firstword $(MAKEFILE_LIST)) check-$(1) PATH="$(ORIG_PATH)" >/dev/null 2>/dev/null; then \
+        echo 'ok.'; \
+    elif $(NO_TRACE_MAKE) -f $(firstword $(MAKEFILE_LIST)) check-$(1) PATH="$(ORIG_PATH)" >/dev/null 2>/dev/null; then \
+        echo 'updated.'; \
+    else \
+        echo 'failed.'; \
+        echo "$(PKG_NAME): $(strip $(2))" >> $(TMP_DIR)/.prereq-error; \
+    fi
+```
+
 进入第一次检查, 会看到 SetupHostCommand 建立软链接时会以 exit 1 退出
 
 ```
-		if $(NO_TRACE_MAKE) -f $(firstword $(MAKEFILE_LIST)) check-$(1) PATH="$(ORIG_PATH)" >/dev/null 2>/dev/null; then \
-			echo 'ok.'; \
+ln -sf "$$$$$$$$bin" "$(STAGING_DIR_HOST)/bin/$(strip $(1))"; \
+exit 1; \
 ```
-
 
 进入第二次检查, 这时成功以 exit 0 退出, 故打印 updated.
 ```
-		elif $(NO_TRACE_MAKE) -f $(firstword $(MAKEFILE_LIST)) check-$(1) PATH="$(ORIG_PATH)" >/dev/null 2>/dev/null; then \
-			echo 'updated.'; \
+				case "$$$$$$$$(ls -dl -- $(STAGING_DIR_HOST)/bin/$(strip $(1)))" in \
+					"-"* | \
+					*" -> $$$$$$$$bin"* | \
+					*" -> "[!/]*) \
+						[ -x "$(STAGING_DIR_HOST)/bin/$(strip $(1))" ] && exit 0 \
+						;; \
+				esac; \
+
 ```
 
 
