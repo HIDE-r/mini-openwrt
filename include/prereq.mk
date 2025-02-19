@@ -119,6 +119,25 @@ endef
 # 1: canonical name		定义的目标名
 # 2: failure message		失败时打印的log
 # 3+: candidates		检查命令
+#
+# 这里的规则命令稍微有点复杂, 这里列出一个简化版:
+#   - 目标位置文件不存在时, 建立软连接, 并 exit 1
+#   - 目标位置文件存在时, 检查可执行权限通过后 exit 0
+# if [ -n $cmd ]; then \
+#     bin="$(command -v "${cmd%% *}")";
+#     if [ -x $bin ] && eval "$cmd" >/dev/null 2>/dev/null; then
+#         case "$(ls -dl -- $(STAGING_DIR_HOST)/bin/$(strip $(1)))" in 
+#             "-"* | *" -> $bin"* | *" -> "[!/]*)
+#                 [-x "$(STAGING_DIR_HOST)/bin/$(strip $(1))" ] && exit 0
+#                 ;;
+#         esac
+#         ln -sf "$bin" "$(STAGING_DIR_HOST)/bin/$(strip $(1))";
+#         exit 1
+#      fi
+# fi
+#
+# Note: 命令 ls -dl 的输出范例为:
+# lrwxrwxrwx 1 user group 7 Jan 1 12:34 symlink_name -> target_path
 define SetupHostCommand
   define Require/$(1)
 	mkdir -p "$(STAGING_DIR_HOST)/bin"; \

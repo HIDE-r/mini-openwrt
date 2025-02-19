@@ -31,6 +31,7 @@ $$(findstring $(2),$$(if $$(DEBUG_SCOPE_DIR),$$(if $$(filter $$(DEBUG_SCOPE_DIR)
 endef
 
 # 当命中调试 flag 时, 打印 warning 信息
+#   Note: warning 将会打印到 stderr 中
 #
 # 1: directory name
 # 2: debug flag

@@ -8,6 +8,8 @@ include $(INCLUDE_DIR)/prereq.mk
 SHELL:=sh
 PKG_NAME:=Build dependency
 
+$(info =====[mini-openwrt]: check build dependency, and link host tools to staging dir ...)
+
 $(eval $(call TestHostCommand,true, \
 	Please install GNU 'coreutils', \
 	$(TRUE)))
