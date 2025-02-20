@@ -22,6 +22,11 @@ define subtarget
 
 endef
 
+# 打印信息, 当$(3)指定的条件符合时, 正常退出;不符合时, 错误退出
+#   当指定了 BUILD_LOG, 则会同时把日志写到 $(BUILD_LOG_DIR)/$(1)/error.txt;
+# 1: path		目标路径
+# 2: error message	需要打印错误信息
+# 3: condition		条件不满足时, exit 1
 define ERROR
 	($(call MESSAGE, $(2)); $(if $(BUILD_LOG), echo "$(2)" >> $(BUILD_LOG_DIR)/$(1)/error.txt;) $(if $(3),, exit 1;))
 endef
@@ -35,11 +40,12 @@ subdir_make_opts = \
 		BUILD_VARIANT="$(4)" \
 		ALL_VARIANTS="$(5)"
 
-# 1: subdir
-# 2: target
+# 进入子目录构建 $(if $(3),$(3)-)$(2) 目标
+# 1: subdir		子目录
+# 2: target		子目录的目标
 # 3: build type
 # 4: build variant
-# 5: all variants
+# 5: all variants	
 log_make = \
 	 $(if $(call debug,$(1),v),,@)+ \
 	 $(if $(BUILD_LOG), \
@@ -59,7 +65,15 @@ rebuild_check = \
 
 endif
 
+# 生成各级子目录的相关目标
+#   如: 这里生成的 target/compile, 会调用到生成的 target/linux/compile, 最终进入 target/linux/ 目录下执行 compile 动作
+# 
 # Parameters: <subdir>
+# 1. 遍历 $($(1)/builddirs) 每个目录
+# 2. 遍历 每个 targets, 从 $(SUBTARGETS) $($(1)/subtargets) 获取
+# 3. 生成 $(1)/$(bd)/$(btype)/$(target) 目标, buildtypes 一般是由 $(TMP_DIR)/.packagedeps 引入
+# 4. 生成 $(1)/$(bd)/$(target) 目标, 调用到 build 目录下的 makefile 进行执行对应动作, 这个目标一般会由 $(1)/$(target) 作为依赖引用
+# 5. 生成 $(1)/$(target) 目标
 define subdir
   $(call warn,$(1),d,D $(1))
   $(foreach bd,$($(1)/builddirs),
@@ -88,7 +102,15 @@ define subdir
 endef
 
 ifndef DUMP_TARGET_DB
+# 实际是对 $(1)/$(3) 目标的封装, 如 target/compile, 该目标由上面的 subdir 生成, 最后创建 stamp 文件表示目标构建成功
+#
 # Parameters: <subdir> <name> <target> <depends> <config options> <stampfile location>
+# 1: subdir, 子目录名称
+# 2: name, stamp 文件的名称 `.<name>_<target>`
+# 3: target, 执行的动作，如：compile, install
+# 4: depends，目标的依赖
+# 5: config options
+# 6: stampfile location, 标记文件的存放位置，如果为空，则默认存放在 `$(STAGING_DIR))/stamp/`
 define stampfile
   $(1)/stamp-$(3):=$(if $(6),$(6),$(STAGING_DIR))/stamp/.$(2)_$(3)$(5)
   $$($(1)/stamp-$(3)): $(TMP_DIR)/.build $(4)
