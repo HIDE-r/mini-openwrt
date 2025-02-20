@@ -75,6 +75,7 @@ endif
 
 _ignore = $(foreach p,$(IGNORE_PACKAGES),--ignore $(p))
 
+# 收集 package 与 target 的信息存放在 tmp 目录下
 prepare-tmpinfo: FORCE
 	@+$(MAKE) -r -s $(STAGING_DIR_HOST)/.prereq-build $(PREP_MK)
 	mkdir -p tmp/info feeds
@@ -91,6 +92,8 @@ prepare-tmpinfo: FORCE
 	./scripts/package-metadata.pl usergroup tmp/.packageinfo > tmp/.packageusergroup || { rm -f tmp/.packageusergroup; false; }
 	touch $(TOPDIR)/tmp/.build
 
+# 生成 openwrt 配置
+#   如果存在 $(HOME)/.openwrt/defconfig, 会拷贝到当前目录
 .config: ./scripts/config/conf $(if $(CONFIG_HAVE_DOT_CONFIG),,prepare-tmpinfo)
 	@+if [ \! -e .config ] || ! grep CONFIG_HAVE_DOT_CONFIG .config >/dev/null; then \
 		[ -e $(HOME)/.openwrt/defconfig ] && cp $(HOME)/.openwrt/defconfig .config; \
