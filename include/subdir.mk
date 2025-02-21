@@ -12,6 +12,8 @@ else
   SUBTARGETS:=$(DEFAULT_SUBDIR_TARGETS)
 endif
 
+# 显示builddirs的变量值, 过滤掉 . 这个当前目录这一项，
+#   优先使用 $($(1)/builddirs-$(2)), 其次 $($(1)/builddirs-default), 最后 $($(1)/builddirs)
 subtarget-default = $(filter-out ., \
 	$(if $($(1)/builddirs-$(2)),$($(1)/builddirs-$(2)), \
 	$(if $($(1)/builddirs-default),$($(1)/builddirs-default), \
