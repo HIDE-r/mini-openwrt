@@ -26,11 +26,13 @@ $(curdir)/builddirs-install:=\
 	$(if $(CONFIG_MAKE_TOOLCHAIN),toolchain) \
 	$(if $(CONFIG_SDK_LLVM_BPF),llvm-bpf)
 
+# 特定目标之间的依赖
 $(curdir)/sdk/install:=$(curdir)/linux/install
 $(curdir)/imagebuilder/install:=$(curdir)/linux/install
 
 $(curdir)//compile = $(STAGING_DIR)/.prepared $(BIN_DIR)
 
+# 生成类似目标:
 # /home/Project/openwrt/staging_dir/target-x86_64_musl/stamp/.target_prereq: /home/Project/openwrt/tmp/.build .config
 $(eval $(call stampfile,$(curdir),target,prereq,.config))
 
