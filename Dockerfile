@@ -16,4 +16,4 @@ python rsync sed texinfo time unzip util-linux wget which zlib \
 && pacman -S --noconfirm --needed asciidoc help2man intltool perl-extutils-makemaker swig
 
 # 开发工具
-RUN pacman -S --noconfirm vim
+RUN pacman -S --noconfirm vim remake
