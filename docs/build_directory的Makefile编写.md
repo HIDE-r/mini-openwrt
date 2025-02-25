@@ -9,7 +9,7 @@
 
 # 变量
 
-## curdir
+## `curdir`
 
 当前目录名, 如:
 
@@ -17,7 +17,7 @@
 curdir:=target
 ```
 
-## $(curdir)/subtargets
+## `$(curdir)/subtargets`
 
 除了默认的 target 还需要为子级构建目录定义的 target, 会生成目标 `$(curdir)/$(target)` 然后到子级构建目录下执行 `$(target)` 目标
 
@@ -33,7 +33,7 @@ $(curdir)/subtargets:=install
 DEFAULT_SUBDIR_TARGETS:=clean download prepare compile update refresh prereq dist distcheck configure check check-depends
 ```
 
-## $(curdir)/builddirs
+## `$(curdir)/builddirs`
 
 子级构建目录的名称, 表示将会进入这些构建目录进行构建
 
@@ -51,7 +51,7 @@ drwxr-xr-x    - collin 19 Feb 16:05 sdk
 drwxr-xr-x    - collin 19 Feb 16:05 toolchain
 ```
 
-## $(curdir)/builddirs-$(target)
+## `$(curdir)/builddirs-$(target)`
 
 指定 `$(curdir)/$(target)` 目标需要构建的子级目录.
 
@@ -70,7 +70,7 @@ $(curdir)/builddirs-install:=\
 	$(if $(CONFIG_SDK_LLVM_BPF),llvm-bpf)
 ```
 
-## $(curdir)/builddirs-default
+## `$(curdir)/builddirs-default`
 
 如果没有定义 `$(curdir)/builddirs-$(target)`, 则将会使用这里指定的 build 目录中的 target 目标, 作为依赖加入到 `$(curdir)/$(target)`
 
@@ -85,7 +85,7 @@ curdir:=target
 $(curdir)/builddirs-default:=linux
 ```
 
-## $(curdir)/
+## `$(curdir)/`
 
 指定所有目标 `$(curdir)/$(target)` 的通用依赖
 
@@ -106,7 +106,7 @@ $(curdir)/ := .config prereq
 
 表明 `tools/compile` , `tools/install` … 等类似的目标都需要依赖 `.config` 与 `prereq`
 
-## $(curdir)//$(target)
+## `$(curdir)//$(target)`
 
 指定所有 build 目录中特定的 target 的通用依赖
 
@@ -130,7 +130,7 @@ $(curdir)//compile = $(STAGING_DIR)/.prepared $(BIN_DIR)
 
 表明所有子构建目录下的 compile动作 (如 `target/linux/compile` 与 `target/sdk/compile` ), 都必须依赖 `$(STAGING_DIR)/.prepared` 和  `$(BIN_DIR)`
 
-## $(curdir)/autoremove
+## `$(curdir)/autoremove`
 
 当构建失败时自动清除 build 目录下的构建目录, 需要开启 `CONFIG_AUTOREMOVE`
 
