@@ -111,7 +111,7 @@ ifndef DUMP_TARGET_DB
 # 2: name, stamp 文件的名称 `.<name>_<target>`
 # 3: target, 执行的动作，如：compile, install
 # 4: depends，目标的依赖
-# 5: config options
+# 5: config options, 表示每个配置是否开启, 会添加到 stamp 文件名后缀, 如 .tools_compile_nyyynyynnnyyynynyyyyyyynyyynynyynnynnyyyyyynyyyyyyyyyyynynnyyyyynyyy
 # 6: stampfile location, 标记文件的存放位置，如果为空，则默认存放在 `$(STAGING_DIR))/stamp/`
 define stampfile
   $(1)/stamp-$(3):=$(if $(6),$(6),$(STAGING_DIR))/stamp/.$(2)_$(3)$(5)
