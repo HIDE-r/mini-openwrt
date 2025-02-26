@@ -25,6 +25,27 @@ git reset v24.10.0 --hard
 
 # 常用 Makefile 目标
 
+**配置：**
+
+| 目标              | 描述                                  |
+| ----------------- | ------------------------------------- |
+| defconfig         | 生成默认的 `.config`                  |
+| oldconfig         | 基于当前已有的 `.config` 进行配置更新 |
+| menuconfig        | openwrt 的菜单配置                    |
+| nconfig           |                                       |
+| xconfig           |                                       |
+| kernel_menuconfig | linux 内核菜单配置                    |
+| kernel_nconfig    |                                       |
+| kernel_xconfig    |                                       |
+
+**构建：**
+
+| 目标 | 描述                  |
+| ---- | --------------------- |
+| make | 构建整个 openwrt 项目 |
+
+**清理：**
+
 
 | 目标      | 描述                                |
 | --------- | ----------------------------------- |
