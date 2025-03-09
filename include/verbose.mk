@@ -7,6 +7,8 @@
 ifndef OPENWRT_VERBOSE
   OPENWRT_VERBOSE:=
 endif
+
+# origin用于返回变量的相关信息. 这里表示如果变量V是从命令行传入, 则将V的值赋给 OPENWRT_VERBOSE, 所以就是这里获取V变量的值
 ifeq ("$(origin V)", "command line")
   OPENWRT_VERBOSE:=$(V)
 endif
@@ -69,6 +71,7 @@ ifeq ($(findstring s,$(OPENWRT_VERBOSE)),)
     SUBMAKE=cmd() { $(SILENT) $(MAKE) -s "$$@" < /dev/null || { echo "make $$*: build failed. Please re-run make with -j1 V=s or V=sc for a higher verbosity level to see what's going on"; false; } } 8>&1 9>&2; cmd
   endif
 
+  # 忽略.SILENT 中依赖的执行时的命令回显, MAKECMDGOALS 是命令指定的make目标列表
   .SILENT: $(MAKECMDGOALS)
 else
 # V=99
