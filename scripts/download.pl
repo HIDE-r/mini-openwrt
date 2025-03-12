@@ -249,6 +249,7 @@ sub download
 	cleanup();
 }
 
+# 清理该脚本生成的中间文件
 sub cleanup
 {
 	unlink "$target/$filename.dl";
