@@ -255,8 +255,10 @@ sub cleanup
 	unlink "$target/$filename.hash";
 }
 
+# 指定本地镜像网址
 @mirrors = localmirrors();
 
+# 添加项目指定镜像网址
 foreach my $mirror (@ARGV) {
 	if ($mirror =~ /^\@SF\/(.+)$/) {
 		# give sourceforge a few more tries, because it redirects to different mirrors

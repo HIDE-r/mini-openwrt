@@ -27,6 +27,10 @@ $(if $(filter https://github.com/% git://github.com/%,$(1)),github_archive,git)
 endef
 
 # Try to guess the download method from the URL
+# 如果没有配置 PROTO 会根据 url 的内容去推断下载协议
+#
+# 1: url
+# 2: proto
 define dl_method
 $(strip \
   $(if $(filter git,$(2)),$(call dl_method_git,$(1),$(2)),
@@ -150,6 +154,7 @@ define DownloadMethod/default
 	)
 endef
 
+# 先尝试使用镜像网站下载需要的文件, 如果失败将使用 $(3) 指定的命令下载. 下载成功后校验 hash.
 # $(1): "check"
 # $(2): "PKG_" if <name> as in Download/<name> is "default", otherwise "Download/<name>:"
 # $(3): shell command sequence to do the download
